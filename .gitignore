@@ -1,0 +1,6 @@
+.zcompdump*
+*.zwc
+.DS_Store
+node_modules
+.lazy
+.mason
