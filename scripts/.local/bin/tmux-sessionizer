@@ -31,6 +31,31 @@ pick_project() {
             --preview-window 'right:55%:wrap'
 }
 
+pick_target() {
+    {
+        if tmux list-sessions -F 'session	#S' 2>/dev/null; then
+            :
+        fi
+
+        mapfile -t paths < <(existing_search_paths)
+        if [[ ${#paths[@]} -gt 0 ]]; then
+            find "${paths[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null |
+                sort |
+                while read -r path; do
+                    printf 'project\t%s\n' "$path"
+                done
+        fi
+    } |
+        fzf \
+            --height 100% \
+            --border rounded \
+            --prompt 'workspace > ' \
+            --delimiter '\t' \
+            --with-nth '1,2' \
+            --preview 'if [[ {1} == session ]]; then tmux list-windows -t {2}; else if command -v eza >/dev/null 2>&1; then eza -la --icons --group-directories-first {2}; else ls -la {2}; fi; fi' \
+            --preview-window 'right:55%:wrap'
+}
+
 create_project_session() {
     local session_name=$1
     local selected=$2
@@ -45,11 +70,24 @@ create_project_session() {
 
 if [[ $# -eq 1 ]]; then
     selected=$1
+    target_type="project"
 else
-    selected=$(pick_project)
+    selected=$(pick_target)
+    target_type=${selected%%$'\t'*}
+    selected=${selected#*$'\t'}
 fi
 
 if [[ -z $selected ]]; then
+    exit 0
+fi
+
+if [[ $target_type == "session" ]]; then
+    if [[ -n ${TMUX:-} ]]; then
+        tmux switch-client -t "$selected"
+    else
+        tmux attach-session -t "$selected"
+    fi
+
     exit 0
 fi
 

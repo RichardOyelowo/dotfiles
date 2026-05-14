@@ -73,7 +73,11 @@ if command -v tmux &> /dev/null \
   && [[ $- == *i* ]] \
   && [ -t 1 ]; then
 
-  tmux attach-session -t main 2>/dev/null || tmux new-session -s main
+  if command -v tmux-sessionizer &> /dev/null; then
+    tmux-sessionizer
+  else
+    tmux attach-session -t main 2>/dev/null || tmux new-session -s main
+  fi
 fi
 
 # ------------------------------
