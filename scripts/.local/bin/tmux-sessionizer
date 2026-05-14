@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SEARCH_PATHS=("$HOME/Projects" "$HOME/Downloads" "$HOME/dotfiles")
+
+existing_search_paths() {
+    for path in "${SEARCH_PATHS[@]}"; do
+        [[ -d "$path" ]] && printf '%s\n' "$path"
+    done
+}
+
+session_name_for() {
+    basename "$1" | tr ' .' '__' | tr -cd '[:alnum:]_-'
+}
+
+pick_project() {
+    mapfile -t paths < <(existing_search_paths)
+
+    if [[ ${#paths[@]} -eq 0 ]]; then
+        return 1
+    fi
+
+    find "${paths[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null |
+        sort |
+        fzf \
+            --height 100% \
+            --border rounded \
+            --prompt 'session > ' \
+            --preview 'if command -v eza >/dev/null 2>&1; then eza -la --icons --group-directories-first {}; else ls -la {}; fi' \
+            --preview-window 'right:55%:wrap'
+}
+
+create_project_session() {
+    local session_name=$1
+    local selected=$2
+
+    tmux new-session -ds "$session_name" -c "$selected" -n editor
+    tmux send-keys -t "$session_name:editor" "nvim ." C-m
+
+    tmux new-window -dt "$session_name" -c "$selected" -n shell
+
+    tmux select-window -t "$session_name:editor"
+}
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(pick_project)
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+selected_name=$(session_name_for "$selected")
+
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    create_project_session "$selected_name" "$selected"
+    tmux attach-session -t "$selected_name"
+    exit 0
+fi
+
+if ! tmux has-session -t="$selected_name" 2> /dev/null; then
+    create_project_session "$selected_name" "$selected"
+fi
+
+if [[ -n ${TMUX:-} ]]; then
+    tmux switch-client -t "$selected_name"
+else
+    tmux attach-session -t "$selected_name"
+fi
