@@ -70,6 +70,7 @@ alias gl="git log --oneline --graph --decorate"
 # ------------------------------
 if command -v tmux &> /dev/null \
   && [ -z "$TMUX" ] \
+  && [ "$DEV_TMUX" = "1" ] \
   && [[ $- == *i* ]] \
   && [ -t 1 ]; then
 
