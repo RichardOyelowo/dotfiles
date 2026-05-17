@@ -12,7 +12,7 @@ return {
 		DEV_TMUX = "1",
 	},
 
-	window_background_opacity = 0.88,
+	window_background_opacity = 0.92,
 	macos_window_background_blur = 20,
 
 	window_padding = {
@@ -26,7 +26,7 @@ return {
 		foreground = "#e0e0f0",
 		background = "#000000",
 
-		cursor_bg = "#ff79c6",
+		cursor_bg = "#e0e0f5",
 		cursor_fg = "#0a0c1f",
 		cursor_border = "#ff79c6",
 
