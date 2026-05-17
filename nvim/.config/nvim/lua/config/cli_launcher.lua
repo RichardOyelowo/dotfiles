@@ -6,81 +6,137 @@ local M = {}
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 local sep = is_windows and "\\" or "/"
 
--- Find executable in virtual environment or node_modules
+local function join_path(...)
+    return table.concat({ ... }, sep)
+end
+
+local function is_executable(path)
+    return vim.fn.filereadable(path) == 1 and vim.fn.executable(path) == 1
+end
+
+local function shell(path)
+    return vim.fn.shellescape(path)
+end
+
+-- Find executable in virtual environments, project bin folders, or PATH.
 local function find_executable(cmd, search_paths)
     local cwd = vim.fn.getcwd()
     for _, path in ipairs(search_paths) do
-        -- Check if the path exists before checking for executables
-        local full_path = cwd .. sep .. path
+        local full_path = join_path(cwd, path)
         if vim.fn.isdirectory(full_path) == 1 then
-            local bin_dir = is_windows and (sep .. "Scripts" .. sep) or (sep .. "bin" .. sep)
-            local exe = full_path .. bin_dir .. cmd
+            local candidates = {
+                join_path(full_path, cmd),
+                join_path(full_path, is_windows and "Scripts" or "bin", cmd),
+            }
+
             if is_windows then
-                exe = exe .. ".exe"
+                vim.list_extend(candidates, {
+                    join_path(full_path, cmd .. ".exe"),
+                    join_path(full_path, "Scripts", cmd .. ".exe"),
+                })
             end
-            if vim.fn.executable(exe) == 1 then
-                return exe
+
+            for _, exe in ipairs(candidates) do
+                if is_executable(exe) then
+                    return shell(exe)
+                end
             end
         end
     end
-    return cmd
+
+    if vim.fn.executable(cmd) == 1 then
+        return cmd
+    end
+
+    return nil
+end
+
+local function missing_executable(cmd)
+    vim.notify("Missing executable: " .. cmd, vim.log.levels.ERROR)
+    return nil
 end
 
 -- Run commands for each language
 local run_commands = {
     python = function(file)
-        return find_executable("python", { "venv", ".venv", "env", ".env" }) .. ' "' .. file .. '"'
+        local python = find_executable("python", { "venv", ".venv", "env", ".env" })
+        return python and (python .. " " .. shell(file)) or missing_executable("python")
     end,
     javascript = function(file)
-        return find_executable("node", { "node_modules/.bin" }) .. ' "' .. file .. '"'
+        local node = find_executable("node", {})
+        return node and (node .. " " .. shell(file)) or missing_executable("node")
     end,
     typescript = function(file)
         local tsx = find_executable("tsx", { "node_modules/.bin" })
-        return (vim.fn.executable(tsx) == 1 and tsx or "npx tsx") .. ' "' .. file .. '"'
+        if tsx then
+            return tsx .. " " .. shell(file)
+        end
+
+        local npx = find_executable("npx", {})
+        return npx and (npx .. " tsx " .. shell(file)) or missing_executable("tsx or npx")
     end,
     rust = function()
-        return "cargo run"
+        return find_executable("cargo", {}) and "cargo run" or missing_executable("cargo")
     end,
     go = function(file)
-        return 'go run "' .. file .. '"'
+        local go = find_executable("go", {})
+        return go and (go .. " run " .. shell(file)) or missing_executable("go")
     end,
     c = function(file)
-        local out = file:gsub("%.c$", "")
-        local run = is_windows and ('"' .. out .. '.exe"') or ("./" .. out)
-        return 'gcc "' .. file .. '" -o "' .. out .. '" && ' .. run
+        local gcc = find_executable("gcc", {})
+        if not gcc then
+            return missing_executable("gcc")
+        end
+
+        local out = vim.fn.fnamemodify(file, ":t:r")
+        local run = is_windows and shell(out .. ".exe") or ("./" .. shell(out))
+        return gcc .. " " .. shell(file) .. " -o " .. shell(out) .. " && " .. run
     end,
     cpp = function(file)
-        local out = file:gsub("%.cpp$", "")
-        local run = is_windows and ('"' .. out .. '.exe"') or ("./" .. out)
-        return 'g++ "' .. file .. '" -o "' .. out .. '" && ' .. run
+        local gpp = find_executable("g++", {})
+        if not gpp then
+            return missing_executable("g++")
+        end
+
+        local out = vim.fn.fnamemodify(file, ":t:r")
+        local run = is_windows and shell(out .. ".exe") or ("./" .. shell(out))
+        return gpp .. " " .. shell(file) .. " -o " .. shell(out) .. " && " .. run
     end,
     lua = function(file)
-        return 'lua "' .. file .. '"'
+        local lua = find_executable("lua", {})
+        return lua and (lua .. " " .. shell(file)) or missing_executable("lua")
     end,
     sh = function(file)
-        return 'bash "' .. file .. '"'
+        local bash = find_executable("bash", {})
+        return bash and (bash .. " " .. shell(file)) or missing_executable("bash")
     end,
     bash = function(file)
-        return 'bash "' .. file .. '"'
+        local bash = find_executable("bash", {})
+        return bash and (bash .. " " .. shell(file)) or missing_executable("bash")
     end,
 }
 
 -- Install commands for each language
 local install_commands = {
     python = function(pkg)
-        return find_executable("pip", { "venv", ".venv", "env", ".env" }) .. " install " .. pkg
+        local pip = find_executable("pip", { "venv", ".venv", "env", ".env" })
+        return pip and (pip .. " install " .. shell(pkg)) or missing_executable("pip")
     end,
     javascript = function(pkg)
-        return "npm install " .. pkg
+        local npm = find_executable("npm", {})
+        return npm and (npm .. " install " .. shell(pkg)) or missing_executable("npm")
     end,
     typescript = function(pkg)
-        return "npm install " .. pkg
+        local npm = find_executable("npm", {})
+        return npm and (npm .. " install " .. shell(pkg)) or missing_executable("npm")
     end,
     rust = function(pkg)
-        return "cargo add " .. pkg
+        local cargo = find_executable("cargo", {})
+        return cargo and (cargo .. " add " .. shell(pkg)) or missing_executable("cargo")
     end,
     go = function(pkg)
-        return "go get " .. pkg
+        local go = find_executable("go", {})
+        return go and (go .. " get " .. shell(pkg)) or missing_executable("go")
     end,
 }
 
@@ -98,6 +154,9 @@ function M.setup()
         end
 
         local cmd = run_fn(file)
+        if not cmd then
+            return
+        end
 
         vim.ui.input({
             prompt = "Run (" .. filename .. "): ",
@@ -126,10 +185,15 @@ function M.setup()
 
         vim.ui.input({ prompt = "Package: " }, function(pkg)
             if pkg and pkg ~= "" then
+                local cmd = install_fn(pkg)
+                if not cmd then
+                    return
+                end
+
                 local file_dir = vim.fn.expand("%:p:h")
                 vim.cmd("split")
                 vim.cmd("lcd " .. vim.fn.fnameescape(file_dir))
-                vim.cmd("terminal " .. install_fn(pkg))
+                vim.cmd("terminal " .. cmd)
                 vim.cmd("startinsert")
             end
         end)
