@@ -12,7 +12,7 @@ return {
 		DEV_TMUX = "1",
 	},
 
-	window_background_opacity = 0.92,
+	window_background_opacity = 0.94,
 	macos_window_background_blur = 20,
 
 	window_padding = {
