@@ -1,4 +1,7 @@
--- bootstrap lazy.nvim, LazyVim and your plugins
-vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
+vim.loader.enable()
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
 require("config.lazy")
+require("config.cli_launcher").setup()
