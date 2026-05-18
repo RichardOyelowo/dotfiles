@@ -51,12 +51,12 @@ Both terminal emulators use a lightly transparent background without compositor 
 
 | Terminal | Opacity | Blur |
 | --- | --- | --- |
-| Kitty | `0.94` | disabled |
-| WezTerm | `0.94` | disabled |
+| Kitty | `0.84` | disabled |
+| WezTerm | `0.84` | disabled |
 
 Kitty is best for a clean shell window. WezTerm remains the main development terminal. The workflow is the same in both terminals once tmux starts.
 
-WezTerm can load private machine-local settings from `~/.config/wezterm/local.lua`. Use `wezterm/.config/wezterm/local.example.lua` as the template. The real `local.lua` file is ignored by Git, so absolute local paths stay out of the repo. If `local.lua` is missing, WezTerm uses the normal configured background and opacity.
+WezTerm can load private machine-local settings from `local.lua`. Use `wezterm/.config/wezterm/local.example.lua` as the template. The real `local.lua` file is ignored by Git, so absolute local paths stay out of the repo. If no local file is found, WezTerm uses the normal configured background and opacity.
 
 ## Shell
 
