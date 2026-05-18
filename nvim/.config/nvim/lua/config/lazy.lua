@@ -68,6 +68,10 @@ require("lazy").setup({
         notify = false,
     },
 
+    rocks = {
+        hererocks = true,
+    },
+
     performance = {
         rtp = {
             -- Fix Treesitter health warning:
