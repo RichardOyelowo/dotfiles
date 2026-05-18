@@ -51,10 +51,12 @@ Both terminal emulators use a transparent background with blur:
 
 | Terminal | Opacity | Blur |
 | --- | --- | --- |
-| Kitty | `0.84` | `background_blur 18` |
-| WezTerm | `0.84` | KDE blur enabled, macOS blur set to `20` |
+| Kitty | `0.78` | `background_blur 18` |
+| WezTerm | `0.78` | KDE blur enabled, macOS blur set to `20` |
 
 Kitty is best for a clean shell window. WezTerm remains the main development terminal. The workflow is the same in both terminals once tmux starts.
+
+WezTerm can load private machine-local settings from `~/.config/wezterm/local.lua`. Use `wezterm/.config/wezterm/local.example.lua` as the template. The real `local.lua` file is ignored by Git, so absolute background image paths stay out of the repo. If `local.lua` is missing, WezTerm uses the normal configured background, opacity, and blur.
 
 ## Shell
 
