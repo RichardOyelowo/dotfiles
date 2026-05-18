@@ -254,11 +254,187 @@ REST requests use:
 <leader>ag    select request
 ```
 
-### LSP Notes
+### Diagnostics And Tooling
 
-Mason installs external tools. nvim-lspconfig configures Neovim to talk to language servers. They work together, but they solve different problems.
+Mason installs external tools. `nvim-lspconfig` connects Neovim to language servers. `nvim-lint` runs extra linters after save and when leaving insert mode. Conform formats on save with an 800ms timeout and falls back to LSP formatting when no formatter is configured.
 
-Mason should stay as the tool installer. LSP config belongs in its own LSP plugin file or in the existing LazyVim LSP override. That keeps installation separate from editor behavior.
+Diagnostics come from LSP servers and linters. They show virtual text, underlines, and sorted severity. Diagnostics do not update while typing because `update_in_insert` is off. That keeps half-written lines from producing noisy messages.
+
+Tool installation belongs in `nvim/.config/nvim/lua/plugins/mason.lua`. Editor behavior belongs in `lsp.lua`, `lint.lua`, and `conform.lua`. Project detection helpers live in `nvim/.config/nvim/lua/config/project_tools.lua`. The local diagnostic display filter lives in `nvim/.config/nvim/lua/config/diagnostics.lua`.
+
+### Project Tool Detection
+
+Python uses this interpreter order:
+
+1. Project-local `.venv`
+2. Project-local `venv`
+3. Project-local `env`
+4. Project-local `.env`
+5. Active `VIRTUAL_ENV`, only when it is inside the project root
+6. `python3` from `PATH`
+7. `python` as the final fallback
+
+Pyright receives the detected path as `python.pythonPath`. Ruff LSP receives the same interpreter path. That keeps LSP import resolution and lint diagnostics tied to the same environment. Conform and `nvim-lint` still run their configured Ruff executables.
+
+TypeScript uses `node_modules/typescript/lib` when the project has it. That keeps `vtsls` on the project's TypeScript version. If no local TypeScript SDK exists, `vtsls` uses its default.
+
+The CLI launcher uses similar local lookup rules for `<leader>r` and `<leader>i`. It checks Python virtual environments, `node_modules/.bin`, project command paths, and then `PATH`. It can run Python, JavaScript, TypeScript, Rust, Go, C, C++, Lua, shell, and bash files. It can install packages for Python, JavaScript, TypeScript, Rust, and Go.
+
+C and C++ do not use project tool lookup. `clangd` needs a compile database, usually `compile_commands.json`. Generate one from CMake, Bear, Meson, or the build tool when includes or compiler flags are missing.
+
+### Tool Ownership
+
+| Language | LSP | Lint | Format | Notes |
+| --- | --- | --- | --- | --- |
+| Python | `pyright`, `ruff` | `ruff` | `ruff_format`, `ruff_organize_imports` | Pyright owns types and imports. Ruff owns lint, format, and import cleanup. Pyright unused import warnings are disabled. |
+| TypeScript, JavaScript, TSX, JSX | `vtsls` | `biomejs` | `biome`, then `prettier` | Biome is tried first. Prettier is the fallback formatter. `eslint_d` is installed but not wired to `nvim-lint`. |
+| Shell, Bash, Zsh | none | `shellcheck` for `sh` | `shfmt` | `bash` and `zsh` format with `shfmt`. Only `sh` is wired to ShellCheck in `lint.lua`. |
+| C, C++ | `clangd` | `clangtidy` | `clang-format` | `clangd` needs project compile flags for accurate results. |
+| Lua | `lua_ls` | none | `stylua` | `vim` is registered as a Lua global. |
+| JSON, JSONC | `jsonls` | none | `biome`, then `prettier` | JSONC uses the same formatter chain. |
+| YAML | `yamlls` | none | `prettier` | YAML support also comes from the LazyVim YAML extra. |
+| TOML | none | none | `taplo` | Mason installs Taplo for formatting. |
+| Markdown, MDX | LazyVim Markdown tooling | none | `prettier` | Render and preview keymaps live in `keymaps.lua`. |
+| SQL | LazyVim SQL tooling | none | `sqlfluff` | Formatting depends on the project's SQLFluff config when one exists. |
+| Dockerfile | LazyVim Docker tooling | none | `dockerfmt` | `dockerfmt` is configured in Conform, but it is not installed by Mason in this config. |
+| HTML | `html` | none | `prettier` | HTML LSP comes from `html-lsp`. |
+| CSS | `cssls` | none | `biome`, then `prettier` | CSS LSP comes from `css-lsp`. |
+| SCSS, Less | none | none | `prettier` | These use formatter support only in this config. |
+| Rust | LazyVim Rust tooling | none | `rustfmt` | Rust support comes from the LazyVim Rust extra and Conform. |
+
+Mason also installs DAP adapters: `debugpy`, `codelldb`, and `js-debug-adapter`. `mason-nvim-dap` maps them as `python`, `codelldb`, and `js`.
+
+Mason installs `black`, but Python formatting currently uses Ruff through Conform. Keep Black installed only if you want it available outside this formatter chain.
+
+### Local Diagnostic Ignore
+
+Neovim hides virtual text, signs, underline, and other diagnostic display output on any line with this marker:
+
+```text
+nvim-diagnostic-ignore
+```
+
+Use it inside the comment syntax for the current language:
+
+```python
+value = call_external_api()  # nvim-diagnostic-ignore
+```
+
+```ts
+const value = callExternalApi() // nvim-diagnostic-ignore
+```
+
+```lua
+local value = external_value -- nvim-diagnostic-ignore
+```
+
+This only filters Neovim's diagnostic display handlers. `vim.diagnostic.get()`, Trouble, CI, language servers, and command-line linters still see the diagnostic. For committed code, use the language-native suppression when one exists.
+
+### Suppression Examples
+
+Use narrow suppressions. Prefer one line over a whole file.
+
+Python Ruff:
+
+```python
+import os  # noqa: F401
+```
+
+Python Pyright:
+
+```python
+value = unknown_api()  # pyright: ignore[reportUnknownVariableType]
+```
+
+TypeScript and JavaScript with Biome:
+
+```ts
+// biome-ignore lint/suspicious/noExplicitAny: external API returns mixed data
+const payload: any = readPayload()
+```
+
+TypeScript checker:
+
+```ts
+// @ts-expect-error external package has stale types
+legacyCall(value)
+```
+
+ShellCheck:
+
+```sh
+# shellcheck disable=SC2086
+cmd $args
+```
+
+C and C++ with clang-tidy:
+
+```c
+int value = legacy_call(); // NOLINT(readability-identifier-naming)
+```
+
+Lua language server:
+
+```lua
+---@diagnostic disable-next-line: undefined-global
+local value = external_value
+```
+
+JSON:
+
+```json
+{
+  "comment": "JSON has no standard inline diagnostic suppression. Fix the rule or exclude the file in the tool config."
+}
+```
+
+YAML:
+
+```yaml
+# YAML diagnostics here come from yamlls. Prefer fixing the schema issue or moving generated data out of the checked file.
+description: "Long generated value" # nvim-diagnostic-ignore
+```
+
+TOML:
+
+```toml
+# TOML has no standard inline diagnostic suppression for Taplo formatting.
+name = "example"
+```
+
+Markdown:
+
+```markdown
+<!-- prettier-ignore -->
+This line is intentionally spaced    by generated output.
+```
+
+SQL with SQLFluff:
+
+```sql
+SELECT * FROM users; -- noqa: LT09
+```
+
+Dockerfile with Hadolint-style comments:
+
+```dockerfile
+# Dockerfile linting is not wired in this config. Use nvim-diagnostic-ignore only for Neovim display noise.
+RUN apt-get update && apt-get install -y curl # nvim-diagnostic-ignore
+```
+
+HTML:
+
+```html
+<!-- prettier-ignore -->
+<div class="generated    spacing"></div>
+```
+
+CSS, SCSS, and Less:
+
+```css
+/* prettier-ignore */
+.button { display: block !important; }
+```
 
 ## Git And Lazygit
 
