@@ -95,7 +95,7 @@ selected_name=$(session_name_for "$selected")
 
 tmux_running=$(pgrep tmux || true)
 
-if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+if [[ -z ${TMUX:-} ]] && [[ -z $tmux_running ]]; then
     create_project_session "$selected_name" "$selected"
     tmux attach-session -t "$selected_name"
     exit 0
