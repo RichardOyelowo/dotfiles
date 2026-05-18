@@ -1,6 +1,6 @@
 local wezterm = require("wezterm")
 
-return {
+local config = {
 	font = wezterm.font("0xProto Nerd Font Mono"),
 	font_size = 12.5,
 	line_height = 1.25,
@@ -12,7 +12,7 @@ return {
 		DEV_TMUX = "1",
 	},
 
-	window_background_opacity = 0.84,
+	window_background_opacity = 0.78,
 	kde_window_background_blur = true,
 	macos_window_background_blur = 20,
 
@@ -56,3 +56,24 @@ return {
 
 	check_for_updates = false,
 }
+
+-- Put machine-local settings in ~/.config/wezterm/local.lua.
+-- That file is ignored by Git, so local image paths stay out of the repo.
+-- Example:
+-- return {
+--   window_background_image = "/absolute/path/to/background.jpg",
+--   window_background_image_hsb = {
+--     brightness = 0.04,
+--     saturation = 0.8,
+--     hue = 0.5,
+--   },
+-- }
+local local_config = wezterm.config_dir .. "/local.lua"
+local ok, local_overrides = pcall(dofile, local_config)
+if ok and type(local_overrides) == "table" then
+	for key, value in pairs(local_overrides) do
+		config[key] = value
+	end
+end
+
+return config
