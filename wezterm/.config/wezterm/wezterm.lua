@@ -12,7 +12,8 @@ return {
 		DEV_TMUX = "1",
 	},
 
-	window_background_opacity = 0.94,
+	window_background_opacity = 0.84,
+	kde_window_background_blur = true,
 	macos_window_background_blur = 20,
 
 	window_padding = {
