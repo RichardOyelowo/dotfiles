@@ -1,9 +1,17 @@
 local wezterm = require("wezterm")
+local mux = wezterm.mux
+
+wezterm.on("gui-startup", function(cmd)
+	local _, _, window = mux.spawn_window(cmd or {})
+	window:gui_window():maximize()
+end)
 
 local config = {
 	font = wezterm.font("0xProto Nerd Font Mono"),
 	font_size = 12.5,
 	line_height = 1.25,
+
+	default_prog = { wezterm.home_dir .. "/.local/bin/tmux-sessionizer" },
 
 	enable_tab_bar = false,
 	hide_tab_bar_if_only_one_tab = true,
@@ -12,9 +20,9 @@ local config = {
 		DEV_TMUX = "1",
 	},
 
-	window_background_opacity = 0.78,
-	kde_window_background_blur = true,
-	macos_window_background_blur = 20,
+	window_background_opacity = 0.94,
+	kde_window_background_blur = false,
+	macos_window_background_blur = 0,
 
 	window_padding = {
 		left = 10,
@@ -58,7 +66,7 @@ local config = {
 }
 
 -- Put machine-local settings in ~/.config/wezterm/local.lua.
--- That file is ignored by Git, so local image paths stay out of the repo.
+-- That file is ignored by Git, so local paths stay out of the repo.
 -- Example:
 -- return {
 --   window_background_image = "/absolute/path/to/background.jpg",
