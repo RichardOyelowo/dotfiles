@@ -6,6 +6,7 @@ local opts = { noremap = true, silent = true }
 
 -- Basic keymaps
 map("i", "jj", "<ESC>")
+map("n", "U", "<C-r>", { desc = "Redo" })
 map({ "n", "v" }, "<leader>q", "<cmd>q!<CR>", { desc = "Quit" })
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal" })
 map("n", "<Esc>", "<CMD>nohlsearch<CR>", { desc = "Clear search" })
@@ -42,6 +43,42 @@ end, { desc = "general format file" })
 
 -- global lsp mappings
 map("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP diagnostic loclist" })
+map("n", "<leader>r", function()
+    return ":IncRename " .. vim.fn.expand("<cword>")
+end, { expr = true, desc = "Incremental Rename" })
+
+-- refactoring
+map({ "n", "x" }, "<leader>Rs", function()
+    require("refactoring").select_refactor()
+end, { desc = "Select Refactor" })
+
+map({ "n", "x" }, "<leader>Re", function()
+    return require("refactoring").extract_func()
+end, { expr = true, desc = "Extract Function" })
+
+map({ "n", "x" }, "<leader>RF", function()
+    return require("refactoring").extract_func_to_file()
+end, { expr = true, desc = "Extract Function To File" })
+
+map({ "n", "x" }, "<leader>Rv", function()
+    return require("refactoring").extract_var()
+end, { expr = true, desc = "Extract Variable" })
+
+map({ "n", "x" }, "<leader>Ri", function()
+    return require("refactoring").inline_var()
+end, { expr = true, desc = "Inline Variable" })
+
+map({ "n", "x" }, "<leader>RI", function()
+    return require("refactoring").inline_func()
+end, { expr = true, desc = "Inline Function" })
+
+-- REST requests
+map("n", "<leader>ar", "<cmd>Rest run<CR>", { desc = "Run REST Request" })
+map("n", "<leader>al", "<cmd>Rest last<CR>", { desc = "Run Last REST Request" })
+map("n", "<leader>ao", "<cmd>Rest open<CR>", { desc = "Open REST Result" })
+map("n", "<leader>ae", "<cmd>Rest env select<CR>", { desc = "Select REST Env" })
+map("n", "<leader>ac", "<cmd>Rest cookies<CR>", { desc = "Open REST Cookies" })
+map("n", "<leader>ag", "<cmd>Rest logs<CR>", { desc = "Open REST Logs" })
 
 -- debugging
 map("n", "<leader>db", function()
