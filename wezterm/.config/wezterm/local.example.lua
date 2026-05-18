@@ -1,14 +1,12 @@
 -- Copy this file to ~/.config/wezterm/local.lua for machine-local settings.
--- Keep local.lua out of Git so absolute image paths stay private.
+-- Keep local.lua out of Git so absolute paths stay private.
 
 return {
-	-- Use an absolute path on this machine.
+	-- Optional. Leave disabled for plain terminal transparency.
 	-- window_background_image = "/absolute/path/to/background.jpg",
-
-	-- Keep the image dark enough that terminal text stays readable.
-	window_background_image_hsb = {
-		brightness = 0.04,
-		saturation = 0.8,
-		hue = 0.5,
-	},
+	-- window_background_image_hsb = {
+	-- 	brightness = 0.2,
+	-- 	saturation = 0.8,
+	-- 	hue = 0.5,
+	-- },
 }
