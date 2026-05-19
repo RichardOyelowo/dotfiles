@@ -13,7 +13,7 @@ map("n", "<Esc>", "<CMD>nohlsearch<CR>", { desc = "Clear search" })
 
 -- FIle & window keymaps
 map({ "n", "v" }, "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
-map("n", "<leader>c", "<cmd>%y+<CR>", { desc = "Copy file contents" })
+map({ "n", "v" }, "<leader>c", "<cmd>%y+<CR>", { desc = "Copy file contents" })
 map({ "n", "v" }, "<leader>h", "<cmd>split<CR>", { desc = "h split" })
 map({ "n", "v" }, "<leader>v", "<cmd>vsplit<CR>", { desc = "v split" })
 map("n", "<leader>n", "<cmd>set nu!<CR>", { desc = "toggle line number" })
@@ -43,7 +43,7 @@ end, { desc = "general format file" })
 
 -- global lsp mappings
 map("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP diagnostic loclist" })
-map("n", "<leader>r", function()
+map({ "n", "v" }, "<leader>r", function()
     return ":IncRename " .. vim.fn.expand("<cword>")
 end, { expr = true, desc = "Incremental Rename" })
 

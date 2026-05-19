@@ -36,30 +36,21 @@ return {
                 pyright = {
                     before_init = function(_, config)
                         local root_dir = config.root_dir or vim.fn.getcwd()
+                        local python = project_tools.python_env(root_dir)
                         config.settings = config.settings or {}
                         config.settings.python = config.settings.python or {}
-                        config.settings.python.pythonPath = project_tools.python(root_dir)
+                        config.settings.python.pythonPath = python.python
+                        if python.venv_path and python.venv then
+                            config.settings.python.venvPath = python.venv_path
+                            config.settings.python.venv = python.venv
+                        end
                     end,
                     settings = {
                         python = {
                             analysis = {
                                 autoSearchPaths = true,
-                                diagnosticMode = "workspace",
-                                indexing = false,
+                                diagnosticMode = "openFilesOnly",
                                 useLibraryCodeForTypes = true,
-                                exclude = {
-                                    "**/.git",
-                                    "**/.mypy_cache",
-                                    "**/.pytest_cache",
-                                    "**/.ruff_cache",
-                                    "**/.tox",
-                                    "**/.venv",
-                                    "**/__pycache__",
-                                    "**/build",
-                                    "**/dist",
-                                    "**/node_modules",
-                                    "**/venv",
-                                },
                                 diagnosticSeverityOverrides = {
                                     reportUnusedImport = "none",
                                 },

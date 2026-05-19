@@ -22,35 +22,54 @@ local function is_inside(path, root_dir)
     return normalized_path == normalized_root or normalized_path:sub(1, #normalized_root + 1) == normalized_root .. "/"
 end
 
-function M.python(root_dir)
+local function python_from_venv(path)
+    return M.first_executable({
+        join(path, "bin", "python"),
+        join(path, "Scripts", "python.exe"),
+    })
+end
+
+function M.python_env(root_dir)
     for _, name in ipairs({ ".venv", "venv", "env", ".env" }) do
-        local python = M.first_executable({
-            join(root_dir, name, "bin", "python"),
-            join(root_dir, name, "Scripts", "python.exe"),
-        })
+        local path = join(root_dir, name)
+        local python = python_from_venv(path)
         if python then
-            return python
+            return {
+                python = python,
+                venv = name,
+                venv_path = root_dir,
+            }
         end
     end
 
     local venv = os.getenv("VIRTUAL_ENV")
     if venv and is_inside(venv, root_dir) then
-        local python = M.first_executable({
-            join(venv, "bin", "python"),
-            join(venv, "Scripts", "python.exe"),
-        })
+        local python = python_from_venv(venv)
         if python then
-            return python
+            return {
+                python = python,
+                venv = vim.fn.fnamemodify(venv, ":t"),
+                venv_path = vim.fn.fnamemodify(venv, ":h"),
+            }
         end
     end
 
     local python3 = vim.fn.exepath("python3")
     if python3 ~= "" then
-        return python3
+        return { python = python3 }
     end
 
     local python = vim.fn.exepath("python")
-    return python ~= "" and python or "python"
+    return { python = python ~= "" and python or "python" }
+end
+
+function M.python(root_dir)
+    return M.python_env(root_dir).python
+end
+
+function M.python_venv(root_dir)
+    local env = M.python_env(root_dir)
+    return env.venv_path, env.venv
 end
 
 function M.node_bin(root_dir, executable)
