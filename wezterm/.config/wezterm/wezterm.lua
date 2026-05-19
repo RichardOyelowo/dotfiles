@@ -1,30 +1,7 @@
 local wezterm = require("wezterm")
 local mux = wezterm.mux
 
-local function file_exists(path)
-	local file = io.open(path, "r")
-	if file then
-		file:close()
-		return true
-	end
-
-	return false
-end
-
-local function local_config_paths()
-	local paths = {
-		wezterm.config_dir .. "/local.lua",
-		wezterm.home_dir .. "/dotfiles/wezterm/.config/wezterm/local.lua",
-	}
-
-	local dotfiles_home = os.getenv("DOTFILES_HOME") or os.getenv("DOTFILES")
-	if dotfiles_home then
-		table.insert(paths, dotfiles_home .. "/wezterm/.config/wezterm/local.lua")
-	end
-
-	return paths
-end
-
+-- opens wezTerm in maximized window
 wezterm.on("gui-startup", function(cmd)
 	local _, _, window = mux.spawn_window(cmd or {})
 	window:gui_window():maximize()
@@ -49,8 +26,8 @@ local config = {
 	},
 
 	window_background_opacity = 0.84,
-	kde_window_background_blur = false,
-	macos_window_background_blur = 0,
+	-- kde_window_background_blur = true, -- uncomment for blurry background(linux)
+	macos_window_background_blur = 20,
 
 	window_padding = {
 		left = 10,
@@ -93,12 +70,55 @@ local config = {
 	check_for_updates = false,
 }
 
+-- to use image as theme
 -- Put machine-local settings in local.lua.
 -- Checked locations:
 -- 1. ~/.config/wezterm/local.lua
 -- 2. ~/dotfiles/wezterm/.config/wezterm/local.lua
 -- 3. $DOTFILES_HOME/wezterm/.config/wezterm/local.lua
 -- The file is ignored by Git, so local paths stay out of the repo.
+
+local function local_config_paths()
+	local paths = {
+		wezterm.config_dir .. "/local.lua",
+		wezterm.home_dir .. "/dotfiles/wezterm/.config/wezterm/local.lua",
+	}
+
+	local dotfiles_home = os.getenv("DOTFILES_HOME") or os.getenv("DOTFILES")
+	if dotfiles_home then
+		table.insert(paths, dotfiles_home .. "/wezterm/.config/wezterm/local.lua")
+	end
+
+	return paths
+end
+
+-- local path for ui configs
+local function local_config_paths()
+	local paths = {
+		wezterm.config_dir .. "/local.lua",
+		wezterm.home_dir .. "/dotfiles/wezterm/.config/wezterm/local.lua",
+	}
+
+	local dotfiles_home = os.getenv("DOTFILES_HOME") or os.getenv("DOTFILES")
+	if dotfiles_home then
+		table.insert(paths, dotfiles_home .. "/wezterm/.config/wezterm/local.lua")
+	end
+
+	return paths
+end
+
+-- checks file existence by opening it
+local function file_exists(path)
+	local file = io.open(path, "r")
+	if file then
+		file:close()
+		return true
+	end
+
+	return false
+end
+
+-- override ui configs with local file if available
 for _, local_config in ipairs(local_config_paths()) do
 	if file_exists(local_config) then
 		local ok, local_overrides = pcall(dofile, local_config)
