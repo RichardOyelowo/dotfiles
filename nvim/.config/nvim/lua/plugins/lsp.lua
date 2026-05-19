@@ -44,8 +44,22 @@ return {
                         python = {
                             analysis = {
                                 autoSearchPaths = true,
-                                diagnosticMode = "openFilesOnly",
+                                diagnosticMode = "workspace",
+                                indexing = false,
                                 useLibraryCodeForTypes = true,
+                                exclude = {
+                                    "**/.git",
+                                    "**/.mypy_cache",
+                                    "**/.pytest_cache",
+                                    "**/.ruff_cache",
+                                    "**/.tox",
+                                    "**/.venv",
+                                    "**/__pycache__",
+                                    "**/build",
+                                    "**/dist",
+                                    "**/node_modules",
+                                    "**/venv",
+                                },
                                 diagnosticSeverityOverrides = {
                                     reportUnusedImport = "none",
                                 },
