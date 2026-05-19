@@ -308,10 +308,15 @@ Mason installs `black`, but Python formatting currently uses Ruff through Confor
 
 ### Local Diagnostic Ignore
 
-Neovim hides virtual text, signs, underline, and other diagnostic display output on any line with this marker:
+Neovim hides virtual text, signs, underline, and other diagnostic display output on any line with one of these markers:
 
 ```text
 nvim-diagnostic-ignore
+# ignore
+// ignore
+-- ignore
+/* ignore */
+<!-- ignore -->
 ```
 
 Use it inside the comment syntax for the current language:

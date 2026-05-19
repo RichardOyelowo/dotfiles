@@ -1,6 +1,13 @@
 local M = {}
 
-local ignore_marker = "nvim%-diagnostic%-ignore"
+local ignore_patterns = {
+    "nvim%-diagnostic%-ignore",
+    "#%s*ignore",
+    "//%s*ignore",
+    "%-%-%s*ignore",
+    "/%*%s*ignore%s*%*/",
+    "<!%-%-%s*ignore%s*%-%->",
+}
 
 local function line_has_ignore_marker(bufnr, lnum)
     if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -13,7 +20,13 @@ local function line_has_ignore_marker(bufnr, lnum)
     end
 
     local line = lines[1]:lower()
-    return line:find(ignore_marker) ~= nil
+    for _, pattern in ipairs(ignore_patterns) do
+        if line:find(pattern) then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function filter(bufnr, diagnostics)
@@ -32,15 +45,25 @@ function M.setup()
     end
     vim.g.richard_diagnostic_filter_loaded = true
 
-    for name, handler in pairs(vim.diagnostic.handlers) do
-        if type(handler) == "table" and type(handler.show) == "function" then
-            local show = handler.show
-            handler.show = function(namespace, bufnr, diagnostics, opts)
-                return show(namespace, bufnr, filter(bufnr, diagnostics), opts)
+    local function wrap_handlers()
+        for name, handler in pairs(vim.diagnostic.handlers) do
+            if type(handler) == "table" and type(handler.show) == "function" and not handler.richard_filtered then
+                local show = handler.show
+                handler.show = function(namespace, bufnr, diagnostics, opts)
+                    return show(namespace, bufnr, filter(bufnr, diagnostics), opts)
+                end
+                handler.richard_filtered = true
+                vim.diagnostic.handlers[name] = handler
             end
-            vim.diagnostic.handlers[name] = handler
         end
     end
+
+    wrap_handlers()
+
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "VeryLazy",
+        callback = wrap_handlers,
+    })
 end
 
 return M
