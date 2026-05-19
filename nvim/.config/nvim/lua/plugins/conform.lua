@@ -10,7 +10,7 @@ return {
             formatters_by_ft = {
                 lua = { "stylua" },
 
-                python = { "ruff_format", "ruff_organize_imports", stop_after_first = false },
+                python = { "ruff_organize_imports", "ruff_format", stop_after_first = false },
 
                 javascript = { "biome", "prettier", stop_after_first = true },
                 javascriptreact = { "biome", "prettier", stop_after_first = true },
