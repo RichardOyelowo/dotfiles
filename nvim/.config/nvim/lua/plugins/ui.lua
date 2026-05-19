@@ -12,8 +12,44 @@ local function set_transparent_background()
         "WinSeparator",
     }
 
+    local preserve = {
+        "fg",
+        "sp",
+        "blend",
+        "bold",
+        "standout",
+        "underline",
+        "undercurl",
+        "underdouble",
+        "underdotted",
+        "underdashed",
+        "strikethrough",
+        "italic",
+        "reverse",
+        "nocombine",
+        "ctermfg",
+        "ctermbg",
+        "cterm",
+    }
+
     for _, group in ipairs(groups) do
-        vim.api.nvim_set_hl(0, group, { bg = "none" })
+        local ok, hl = pcall(vim.api.nvim_get_hl, 0, {
+            name = group,
+            link = false,
+        })
+
+        if ok and hl then
+            local new_hl = {}
+
+            for _, key in ipairs(preserve) do
+                if hl[key] ~= nil then
+                    new_hl[key] = hl[key]
+                end
+            end
+
+            new_hl.bg = "NONE"
+            vim.api.nvim_set_hl(0, group, new_hl)
+        end
     end
 end
 
