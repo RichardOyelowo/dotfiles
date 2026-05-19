@@ -37,7 +37,6 @@ return {
                 "yaml-language-server",
 
                 -- formatters
-                "black",
                 "stylua",
                 "prettier",
                 "biome",
@@ -56,7 +55,8 @@ return {
                 "codelldb",
                 "js-debug-adapter",
             },
-            run_on_start = false,
+            run_on_start = true,
+            start_delay = 5000,
         },
     },
 
