@@ -2,6 +2,7 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 vim.g.loaded_perl_provider = 0
+vim.g.autoformat = false
 
 vim.opt.pumheight = 10
 vim.opt.confirm = true
@@ -13,6 +14,7 @@ vim.opt.number = true
 vim.opt.ruler = false
 vim.opt.numberwidth = 4
 vim.opt.relativenumber = true
+vim.opt.number = true
 
 vim.opt.mouse = "a"
 
@@ -45,7 +47,7 @@ vim.opt.completeopt = "menuone,noselect"
 
 vim.opt.breakindent = true
 
-vim.opt.guicursor = ""
+vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver50,r-cr:hor20,o:hor50"
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
 
