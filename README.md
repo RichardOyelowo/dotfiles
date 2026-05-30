@@ -4,6 +4,11 @@ Personal Linux configuration for terminals, tmux, zsh, Git, Lazygit, scripts, an
 
 This setup keeps the terminal calm by default. Kitty opens into a normal zsh shell. Development starts when tmux is launched. WezTerm can use the same workflow, but it remains the main development terminal.
 
+## The Look
+<div align="center">
+    <img src="./Screenshot.png">
+</div>
+
 ## Layout
 
 | Path | Purpose |
@@ -52,7 +57,7 @@ Both terminal emulators use a lightly transparent background without compositor 
 | Terminal | Opacity | Blur |
 | --- | --- | --- |
 | Kitty | `0.84` | disabled |
-| WezTerm | `0.84` | disabled |
+| WezTerm | `0.95` | disabled |
 
 Kitty is best for a clean shell window. WezTerm remains the main development terminal. The workflow is the same in both terminals once tmux starts.
 
