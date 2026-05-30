@@ -3,20 +3,20 @@ return {
     { "olimorris/onedarkpro.nvim", name = "onedarkpro" },
     { "folke/tokyonight.nvim", name = "tokyonight" },
     { "sainnhe/sonokai", name = "sonokai" },
-    { "catppuccin/nvim", name = "catppuccin" },
     {
-        "rose-pine/neovim",
-        name = "rose-pine",
-        config = function()
-            vim.cmd("colorscheme rose-pine")
-        end,
+        "catppuccin/nvim",
+        name = "catppuccin",
+        opts = {
+            flavour = "mocha",
+            transparent_background = true,
+        },
     },
+    { "rose-pine/neovim", name = "rose-pine" },
 
     {
         "LazyVim/LazyVim",
         opts = {
             colorscheme = "catppuccin",
-            transparent_background = true,
         },
     },
 }
