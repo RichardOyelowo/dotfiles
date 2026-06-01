@@ -36,7 +36,6 @@ return {
 
                 rust = { "rustfmt" },
                 sql = { "sqlfluff" },
-                dockerfile = { "dockerfmt" },
 
                 ["_"] = { "trim_whitespace" },
             },

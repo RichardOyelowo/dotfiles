@@ -86,6 +86,7 @@ return {
                 cssls = {},
                 jsonls = {},
                 yamlls = {},
+                docker_language_server = {}
             },
         },
     },

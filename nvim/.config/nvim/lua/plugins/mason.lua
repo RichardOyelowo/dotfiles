@@ -35,6 +35,7 @@ return {
                 "css-lsp",
                 "json-lsp",
                 "yaml-language-server",
+                "docker-language-server",
 
                 -- formatters
                 "stylua",
@@ -49,6 +50,7 @@ return {
                 "ruff",
                 "eslint_d",
                 "shellcheck",
+                "hadolint",
 
                 -- DAP
                 "debugpy",
