@@ -85,3 +85,5 @@ fi
 # Powerlevel10k Config
 # ------------------------------
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+export PATH=$PATH:/usr/local/go/bin
+alias lg="lazygit"
