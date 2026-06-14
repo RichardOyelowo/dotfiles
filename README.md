@@ -231,11 +231,18 @@ The bufferline tab strip is disabled because Incline already shows the active fi
 
 Undo is the built-in `u`. Redo is mapped to `U`, which sends Neovim's built-in `<C-r>`.
 
-Rename uses:
+Custom mappings avoid LazyVim prefix conflicts.
 
-```text
-<leader>r
-```
+| Keymap | Action |
+| --- | --- |
+| `<leader>rr` | Run file |
+| `<leader>ri` | Install package |
+| `<leader>y` | Copy file contents |
+| `<leader>Q` | Force quit |
+| `<leader>W` | Save file |
+| `<leader>cr` | Incremental Rename |
+| `<leader>R` | Toggle relative number |
+| `<leader>N` | Toggle line number |
 
 Refactoring uses uppercase leader mappings:
 
@@ -283,7 +290,7 @@ Pyright receives the detected path as `python.pythonPath`. Ruff LSP receives the
 
 TypeScript uses `node_modules/typescript/lib` when the project has it. That keeps `vtsls` on the project's TypeScript version. If no local TypeScript SDK exists, `vtsls` uses its default.
 
-The CLI launcher uses similar local lookup rules for `<leader>r` and `<leader>i`. It checks Python virtual environments, `node_modules/.bin`, project command paths, and then `PATH`. It can run Python, JavaScript, TypeScript, Rust, Go, C, C++, Lua, shell, and bash files. It can install packages for Python, JavaScript, TypeScript, Rust, and Go.
+The CLI launcher uses similar local lookup rules for `<leader>rr` and `<leader>ri`. It checks Python virtual environments, `node_modules/.bin`, project command paths, and then `PATH`. It can run Python, JavaScript, TypeScript, Rust, Go, C, C++, Lua, shell, and bash files. It can install packages for Python, JavaScript, TypeScript, Rust, and Go.
 
 C and C++ do not use project tool lookup. `clangd` needs a compile database, usually `compile_commands.json`. Generate one from CMake, Bear, Meson, or the build tool when includes or compiler flags are missing.
 
