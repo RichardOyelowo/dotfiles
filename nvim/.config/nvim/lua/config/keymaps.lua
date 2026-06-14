@@ -7,17 +7,23 @@ local opts = { noremap = true, silent = true }
 -- Basic keymaps
 map("i", "jj", "<ESC>")
 map("n", "U", "<C-r>", { desc = "Redo" })
-map({ "n", "v" }, "<leader>q", "<cmd>q!<CR>", { desc = "Quit" })
+map({ "n", "v" }, "<leader>Q", "<cmd>q!<CR>", { desc = "Force quit" })
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal" })
 map("n", "<Esc>", "<CMD>nohlsearch<CR>", { desc = "Clear search" })
 
 -- FIle & window keymaps
-map({ "n", "v" }, "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
-map({ "n", "v" }, "<leader>c", "<cmd>%y+<CR>", { desc = "Copy file contents" })
+map({ "n", "v" }, "<leader>W", "<cmd>w<CR>", { desc = "Save file" })
+map({ "n", "v" }, "<leader>y", "<cmd>%y+<CR>", { desc = "Copy file contents" })
 map({ "n", "v" }, "<leader>h", "<cmd>split<CR>", { desc = "h split" })
 map({ "n", "v" }, "<leader>v", "<cmd>vsplit<CR>", { desc = "v split" })
-map("n", "<leader>n", "<cmd>set nu!<CR>", { desc = "toggle line number" })
-map("n", "<leader>rn", "<cmd>set rnu!<CR>", { desc = "toggle relative number" })
+map("n", "<leader>N", "<cmd>set nu!<CR>", { desc = "toggle line number" })
+map("n", "<leader>R", "<cmd>set rnu!<CR>", { desc = "toggle relative number" })
+map("n", "<leader>rr", function()
+    require("config.cli_launcher").run_file()
+end, { desc = "Run file" })
+map("n", "<leader>ri", function()
+    require("config.cli_launcher").install_package()
+end, { desc = "Install package" })
 
 -- Tab, shift-Tab: indent/unindent selection or current line
 map("v", "<Tab>", ">gv", opts)
@@ -43,7 +49,7 @@ end, { desc = "general format file" })
 
 -- global lsp mappings
 map("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP diagnostic loclist" })
-map({ "n", "v" }, "<leader>r", function()
+map("n", "<leader>cr", function()
     return ":IncRename " .. vim.fn.expand("<cword>")
 end, { expr = true, desc = "Incremental Rename" })
 

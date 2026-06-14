@@ -32,7 +32,6 @@ end)
 
 local config = {
 	font = wezterm.font("0xProto Nerd Font Mono"),
-	font_size = 12.5,
 	line_height = 1.25,
 
 	default_prog = {
