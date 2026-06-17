@@ -1,8 +1,8 @@
 return {
     { "scottmckendry/cyberdream.nvim", name = "cyberdream" },
-    { "olimorris/onedarkpro.nvim", name = "onedarkpro" },
+    { "olimorris/onedarkpro.nvim", name = "onedarkpro", lazy = true },
     { "folke/tokyonight.nvim", name = "tokyonight" },
-    { "sainnhe/sonokai", name = "sonokai" },
+    { "sainnhe/sonokai", name = "sonokai", lazy = true },
     {
         "catppuccin/nvim",
         name = "catppuccin",
