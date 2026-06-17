@@ -77,5 +77,6 @@ return {
             },
             handlers = nil,
         },
+        event = "VeryLazy",
     },
 }
