@@ -2,7 +2,7 @@
 # SSH Agent
 # ------------------------------
 if [ -z "$SSH_AUTH_SOCK" ]; then
-  eval "$(ssh-agent -s)" > /dev/null
+  eval "$(ssh-agent -s)" >/dev/null
   ssh-add ~/.ssh/id_ed25519 2>/dev/null
 fi
 
@@ -19,7 +19,6 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 # Oh My Zsh
 # ------------------------------
 export ZSH="$HOME/.oh-my-zsh"
-
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 plugins=(
@@ -28,12 +27,12 @@ plugins=(
   zsh-syntax-highlighting
 )
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 # ------------------------------
 # History
 # ------------------------------
-HISTFILE=~/.histfile
+HISTFILE="$HOME/.histfile"
 HISTSIZE=50000
 SAVEHIST=50000
 
@@ -43,13 +42,28 @@ SAVEHIST=50000
 export EDITOR="nvim"
 export SHELL="/usr/bin/zsh"
 
-# PATH
-export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH:/usr/local/go/bin:/var/lib/snapd/snap/bin:/snap/bin"
 
 # ------------------------------
 # zoxide
 # ------------------------------
 eval "$(zoxide init zsh)"
+
+# ------------------------------
+# nvm
+# ------------------------------
+export NVM_DIR="$HOME/.nvm"
+
+load_nvm() {
+  unset -f nvm node npm npx corepack
+  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+}
+
+nvm()      { load_nvm; nvm "$@"; }
+node()     { load_nvm; node "$@"; }
+npm()      { load_nvm; npm "$@"; }
+npx()      { load_nvm; npx "$@"; }
+corepack() { load_nvm; corepack "$@"; }
 
 # ------------------------------
 # Aliases
@@ -65,16 +79,18 @@ alias gd="git diff"
 alias gp="git push"
 alias gl="git log --oneline --graph --decorate"
 
+alias lg="lazygit"
+
 # ------------------------------
 # Auto tmux
 # ------------------------------
-if command -v tmux &> /dev/null \
-  && [ -z "$TMUX" ] \
-  && [ "$DEV_TMUX" = "1" ] \
+if command -v tmux >/dev/null \
+  && [[ -z "$TMUX" ]] \
+  && [[ "$DEV_TMUX" == "1" ]] \
   && [[ $- == *i* ]] \
-  && [ -t 1 ]; then
+  && [[ -t 1 ]]; then
 
-  if command -v tmux-sessionizer &> /dev/null; then
+  if command -v tmux-sessionizer >/dev/null; then
     tmux-sessionizer
   else
     tmux attach-session -t main 2>/dev/null || tmux new-session -s main
@@ -84,6 +100,8 @@ fi
 # ------------------------------
 # Powerlevel10k Config
 # ------------------------------
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export PATH=$PATH:/usr/local/go/bin
-alias lg="lazygit"
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/Richard_O/.local/bin:$PATH"
