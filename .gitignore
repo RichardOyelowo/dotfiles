@@ -5,4 +5,5 @@ node_modules
 .lazy
 .mason
 .gitconfig
+.idea
 wezterm/.config/wezterm/local.lua
