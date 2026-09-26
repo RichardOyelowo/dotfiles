@@ -1,12 +1,4 @@
 # ------------------------------
-# SSH Agent
-# ------------------------------
-if [ -z "$SSH_AUTH_SOCK" ]; then
-  eval "$(ssh-agent -s)" >/dev/null
-  ssh-add ~/.ssh/id_ed25519 2>/dev/null
-fi
-
-# ------------------------------
 # Powerlevel10k Instant Prompt
 # ------------------------------
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
