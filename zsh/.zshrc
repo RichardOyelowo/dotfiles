@@ -45,6 +45,7 @@ eval "$(zoxide init zsh)"
 # nvm
 # ------------------------------
 export NVM_DIR="$HOME/.nvm"
+source "$NVM_DIR/nvm.sh"
 
 load_nvm() {
   unset -f nvm node npm npx corepack
@@ -90,10 +91,35 @@ if command -v tmux >/dev/null \
 fi
 
 # ------------------------------
+# SSH Agent
+# ------------------------------
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  eval "$(ssh-agent -s)" >/dev/null
+  ssh-add ~/.ssh/id_ed25519 2>/dev/null
+fi
+
+# ------------------------------
+# GPG TTY (re-set after PAM/pty setup settles)
+# ------------------------------
+export GPG_TTY=$(tty 2>/dev/null)
+
+# ------------------------------
 # Powerlevel10k Config
 # ------------------------------
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 
-# Added by Antigravity CLI installer
 export PATH="/home/Richard_O/.local/bin:$PATH"
+
+# ----- Added file for secret keys(APIS) outside repo
+[ -f ~/.secrets.env ] && source ~/.secrets.env
+
+# ---- Prevent Unintended API Key Collisions ---
+unset ANTHROPIC_API_KEY
+
+
+# --- Antigravity CLI Overrides ---
+# Route requests through Google AI Studio free tier instead of OAuth/GCP
+export ANTIGRAVITY_USE_AI_STUDIO="true"
+export GEMINI_API_KEY="$GEMINI_API_KEY"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
