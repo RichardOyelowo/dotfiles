@@ -36,7 +36,6 @@ vim.opt.smartindent = true
 
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
-vim.opt.wrap = false
 
 vim.opt.clipboard = "unnamedplus"
 
@@ -60,3 +59,14 @@ vim.opt.signcolumn = "yes:1"
 vim.opt.statuscolumn = ""
 
 vim.opt.list = false
+
+-- Disable hard text wrapping globally
+vim.opt.wrap = false
+vim.opt.textwidth = 0
+
+-- Prevent automatic line wrapping in comments or text
+-- t: wrap text using textwidth
+-- c: wrap comments using textwidth 
+-- r: automatically insert comment leader after Enter
+vim.opt.formatoptions:remove({ "c", "r", "o", "t" })
+
