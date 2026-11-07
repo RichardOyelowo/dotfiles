@@ -114,12 +114,15 @@ export PATH="/home/Richard_O/.local/bin:$PATH"
 # ----- Added file for secret keys(APIS) outside repo
 [ -f ~/.secrets.env ] && source ~/.secrets.env
 
-# ---- Prevent Unintended API Key Collisions ---
-unset ANTHROPIC_API_KEY
-
-
 # --- Antigravity CLI Overrides ---
 # Route requests through Google AI Studio free tier instead of OAuth/GCP
 export ANTIGRAVITY_USE_AI_STUDIO="true"
 export GEMINI_API_KEY="$GEMINI_API_KEY"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# bun completions
+[ -s "/home/Richard_O/.bun/_bun" ] && source "/home/Richard_O/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
